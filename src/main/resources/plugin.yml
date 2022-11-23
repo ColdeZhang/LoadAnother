@@ -1,0 +1,14 @@
+name: LoadAnother
+version: '${project.version}'
+main: deercloud.loadanother.LoadAnother
+api-version: 1.13
+prefix: LoadAnother
+load: STARTUP
+authors: [ Luming ]
+description: 帮助玩家强加载另一个世界的对应区块。
+website: https://blog.deercloud.site
+commands:
+    loadanother:
+        description: 帮助玩家强加载另一个世界的对应区块。
+        usage: /loadanother <help>
+        aliases: [la]
