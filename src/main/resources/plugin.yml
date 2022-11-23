@@ -1,7 +1,7 @@
 name: LoadAnother
 version: '${project.version}'
 main: deercloud.loadanother.LoadAnother
-api-version: 1.13
+api-version: 1.14
 prefix: LoadAnother
 load: STARTUP
 authors: [ Luming ]

@@ -2,6 +2,10 @@ package deercloud.loadanother;
 
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityPortalEnterEvent;
+import org.bukkit.event.entity.EntityPortalEvent;
+import org.bukkit.event.entity.EntityPortalExitEvent;
+import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -15,8 +19,13 @@ public class Events implements Listener {
     }
 
     @EventHandler
-    public void onChunkUnloadEvent(ChunkUnloadEvent event) {
-        m_work.chunkUnloadController(event);
+    public void onMonsterPortalEvent(EntityPortalEnterEvent event) {
+        m_work.monsterPortalController(event);
+    }
+
+    @EventHandler
+    public void onPlayerChangeWorldEvent(PlayerChangedWorldEvent event) {
+        m_work.playerChangeWorldController(event);
     }
 
     @EventHandler
@@ -24,10 +33,6 @@ public class Events implements Listener {
         m_work.playerJoinController(event.getPlayer());
     }
 
-    @EventHandler
-    public void onPlayerQuitEvent(PlayerQuitEvent event) {
-        m_work.playerQuitController(event.getPlayer());
-    }
     WorkManager m_work = LoadAnother.getInstance().getWorkManager();
 
 }

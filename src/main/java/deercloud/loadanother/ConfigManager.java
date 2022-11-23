@@ -26,6 +26,11 @@ public class ConfigManager {
     public boolean getEnable() {
         return m_enable;
     }
+    public void setDefault(boolean enable) {
+        m_config_file.set("enable", enable);
+        m_plugin.saveConfig();
+        m_enable = enable;
+    }
 
     public int getLoadTime() {
         return m_load_time;
@@ -44,8 +49,8 @@ public class ConfigManager {
         m_plugin.saveConfig();
     }
 
-    private LoadAnother m_plugin = null;
-    private MyLogger m_logger = null;
+    private final LoadAnother m_plugin;
+    private final MyLogger m_logger;
     private FileConfiguration m_config_file;
 
     private boolean m_enable = false;

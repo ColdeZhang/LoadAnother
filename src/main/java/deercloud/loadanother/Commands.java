@@ -43,6 +43,32 @@ public class Commands implements TabExecutor {
                     m_logger.error("此命令只能由玩家执行");
                 }
                 break;
+            case "setDefault":
+                if (sender instanceof Player) {
+                    Player player = (Player) sender;
+                    if (player.isOp()) {
+                        if (args.length == 2) {
+                            try {
+                                m_config_manager.setDefault(Boolean.parseBoolean(args[1]));
+                                m_logger.info(player, "已设置 LoadAnother 默认启用状态为 " + args[1]);
+                            } catch (NumberFormatException e) {
+                                m_logger.error(player, "参数错误");
+                            }
+                        } else {
+                            m_logger.error(player, "参数错误");
+                        }
+                    } else {
+                        m_logger.error(player, "你没有权限执行此命令");
+                    }
+                } else {
+                    try {
+                        m_config_manager.setDefault(Boolean.parseBoolean(args[1]));
+                        m_logger.info("已设置 LoadAnother 默认启用状态为 " + args[1]);
+                    } catch (NumberFormatException e) {
+                        m_logger.error("参数错误");
+                    }
+                }
+                break;
             case "setLoadTime":
                 if (sender instanceof Player) {
                     Player player = (Player) sender;
@@ -134,6 +160,7 @@ public class Commands implements TabExecutor {
             m_logger.info(player,"| ===== LoadAnother 命令帮助 =====");
             m_logger.info(player,"| /loadanother help - 显示帮助");
             m_logger.info(player,"| /loadanother reload - 重载配置文件");
+            m_logger.info(player,"| /loadanother setDefault - 玩家默认是否启用插件");
             m_logger.info(player,"| /loadanother enable - 启用插件");
             m_logger.info(player,"| /loadanother disable - 禁用插件");
             m_logger.info(player,"| /loadanother status - 查看状态");
@@ -143,6 +170,7 @@ public class Commands implements TabExecutor {
             m_logger.info("| ===== LoadAnother 命令帮助 =====");
             m_logger.info("| /loadanother help - 显示帮助");
             m_logger.info("| /loadanother reload - 重载配置文件");
+            m_logger.info("| /loadanother setDefault - 玩家默认是否启用插件");
             m_logger.info("| /loadanother enable - 启用插件");
             m_logger.info("| /loadanother disable - 禁用插件");
             m_logger.info("| /loadanother status - 查看状态");
@@ -175,7 +203,7 @@ public class Commands implements TabExecutor {
         return null;
     }
 
-    private MyLogger m_logger = LoadAnother.getInstance().getMyLogger();
-    private WorkManager m_work_manager = LoadAnother.getInstance().getWorkManager();
-    private ConfigManager m_config_manager = LoadAnother.getInstance().getConfigManager();
+    private final MyLogger m_logger = LoadAnother.getInstance().getMyLogger();
+    private final WorkManager m_work_manager = LoadAnother.getInstance().getWorkManager();
+    private final ConfigManager m_config_manager = LoadAnother.getInstance().getConfigManager();
 }
