@@ -115,6 +115,7 @@ public class Commands implements TabExecutor {
                     if (player.isOp()) {
                         m_logger.info(player, "正在重载 LoadAnother 配置文件");
                         m_config_manager.reload();
+                        m_work_manager.reset();
                         m_logger.info(player, "已重新加载 LoadAnother 配置文件");
                     } else {
                         m_logger.error(player, "你没有权限执行此命令");
@@ -122,6 +123,7 @@ public class Commands implements TabExecutor {
                 } else {
                     sender.sendMessage(ChatColor.GREEN + "正在重载 LoadAnother 配置文件");
                     m_config_manager.reload();
+                    m_work_manager.reset();
                     sender.sendMessage(ChatColor.GREEN + "已重新加载 LoadAnother 配置文件");
                 }
                 break;
@@ -166,6 +168,8 @@ public class Commands implements TabExecutor {
             m_logger.info(player,"| /loadanother status - 查看状态");
             m_logger.info(player,"| /loadanother setLoadTime <整数> - 设置强加载持续时间（0 代表不限制）");
             m_logger.info(player,"| /loadanother setDelay <整数>- 设置玩家离开后卸载延迟时间");
+            m_logger.info(player,"| /loadanother setRadius <整数> - 设置加载区块半径");
+            m_logger.info(player,"| ===============================");
         } else {
             m_logger.info("| ===== LoadAnother 命令帮助 =====");
             m_logger.info("| /loadanother help - 显示帮助");
@@ -176,6 +180,8 @@ public class Commands implements TabExecutor {
             m_logger.info("| /loadanother status - 查看状态");
             m_logger.info("| /loadanother setLoadTime <整数> - 设置强加载持续时间（0 代表不限制）");
             m_logger.info("| /loadanother setDelay <整数>- 设置玩家离开后卸载延迟时间");
+            m_logger.info("| /loadanother setRadius <整数> - 设置加载区块半径");
+            m_logger.info("| ===============================");
         }
 
     }
@@ -191,13 +197,16 @@ public class Commands implements TabExecutor {
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         if (args.length == 1) {
-            return Arrays.asList("help", "reload", "enable", "disable", "setLoadTime", "setDelay", "status");
+            return Arrays.asList("help", "reload", "enable", "disable", "setLoadTime", "setDelay", "setRadius", "status");
         } else if (args.length == 2) {
             if (args[0].equals("setLoadTime")) {
                 return Collections.singletonList("请输入整数 （单位：秒） 设置强加载持续时间（0为不限制）");
             }
             if (args[0].equals("setDelay")) {
                 return Collections.singletonList("请输入整数 （单位：秒） 设置玩家离开后延迟卸载时间（0为立即卸载）");
+            }
+            if (args[0].equals("setRadius")) {
+                return Collections.singletonList("请输入整数 （单位：区块） 设置加载区块半径");
             }
         }
         return null;

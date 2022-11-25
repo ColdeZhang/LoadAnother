@@ -1,5 +1,6 @@
 package deercloud.loadanother;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
 import org.bukkit.World;
@@ -9,8 +10,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityPortalEnterEvent;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
+import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -60,6 +64,7 @@ public class WorkManager {
         m_logger.info(player, "| 编号 - " + bind_chunk.getHash());
         m_logger.info(player, "| | 主世界区块 " + bind_chunk.getWorldChunk().getX() + ", " + bind_chunk.getWorldChunk().getZ());
         m_logger.info(player, "| | 下届区块为 " + bind_chunk.getNetherChunk().getX() + ", " + bind_chunk.getNetherChunk().getZ());
+        m_logger.info(player, "| ======================");
     }
 
     public void playerPortalController(PlayerPortalEvent event) {
@@ -84,10 +89,10 @@ public class WorkManager {
     public void playerJoinController(Player player) {
         if (m_config.getEnable()) {
             playerEnable(player);
-            m_logger.info(player, ChatColor.GREEN + "| 强加载已开启 使用 /loadanother help 查看帮助");
+            m_logger.info(player, "| 强加载已开启 使用 /loadanother help 查看帮助");
         } else {
             playerDisable(player);
-            m_logger.info(player, ChatColor.RED + "| 强加载已关闭 使用 /loadanother help 查看帮助");
+            m_logger.info(player, "| 强加载已关闭 使用 /loadanother help 查看帮助");
         }
     }
 
@@ -103,7 +108,7 @@ public class WorkManager {
         if (bind_chunk == null) {
             return;
         }
-        monster.setCustomName(bind_chunk.getHash());
+//        monster.setCustomName(bind_chunk.getHash());
         monster.setRemoveWhenFarAway(false);
     }
 
@@ -213,6 +218,7 @@ public class WorkManager {
         m_logger.info(player, "| 强加载状态: " + (player_setting.get(player) ? "开启" : "关闭"));
         m_logger.info(player, "| 强加载持续时间: " + m_config.getLoadTime() + "秒（0 代表不限制）");
         m_logger.info(player, "| 强加载延迟卸载时间: " + m_config.getDelay() + "秒");
+        m_logger.info(player, "| 强加载区块半径: " + m_config.getRadius());
         m_logger.info(player, "| =====强加载内容=====");
         for (Map.Entry<String , BindChunk> entry : m_bind_chunks.entrySet()) {
             BindChunk bind_chunk = entry.getValue();
@@ -220,10 +226,12 @@ public class WorkManager {
                 m_logger.info(player, "| 强加载区块Hash " + bind_chunk.getHash());
                 m_logger.info(player, "| 主世界区块坐标 " + bind_chunk.getWorldChunk().getX() + ", " + bind_chunk.getWorldChunk().getZ());
                 m_logger.info(player, "| 地狱侧区块坐标 " + bind_chunk.getNetherChunk().getX() + ", " + bind_chunk.getNetherChunk().getZ());
+                m_logger.info(player, "| ===================");
                 return;
             }
         }
         m_logger.info(player, "| 无，使用地狱门跳跃后可查看");
+        m_logger.info(player, "| ===================");
     }
 
     public void printStatusOP(CommandSender sender) {
@@ -233,6 +241,7 @@ public class WorkManager {
             m_logger.info(player, "| 默认强加载状态: " + (m_config.getEnable() ? "开启" : "关闭"));
             m_logger.info(player, "| 强加载持续时间: " + m_config.getLoadTime() + "秒（0 代表不限制）");
             m_logger.info(player, "| 强加载延迟卸载时间: " + m_config.getDelay() + "秒");
+            m_logger.info(player, "| 强加载区块半径: " + m_config.getRadius());
             m_logger.info(player, "| =====强加载区块列表=====");
             for (Map.Entry<String, BindChunk> entry : m_bind_chunks.entrySet()) {
                 BindChunk bind_chunk = entry.getValue();
@@ -240,6 +249,7 @@ public class WorkManager {
                 m_logger.info(player, "|  | World : " + bind_chunk.getWorldChunk().getX() + ", " + bind_chunk.getWorldChunk().getZ());
                 m_logger.info(player, "|  | Nether: " + bind_chunk.getNetherChunk().getX() + ", " + bind_chunk.getNetherChunk().getZ());
             }
+            m_logger.info(player, "| ===================");
         } else {
             m_logger.info("| =====插件配置=====");
             m_logger.info("| 默认强加载状态: " + (m_config.getEnable() ? "开启" : "关闭"));
@@ -253,6 +263,39 @@ public class WorkManager {
                 m_logger.info("|  | Nether: " + bind_chunk.getNetherChunk().getX() + ", " + bind_chunk.getNetherChunk().getZ());
             }
         }
+        m_logger.info("| ===================");
+    }
+
+    public void reset() {
+        isReseting = true;
+        // 获取所有在线玩家
+        ArrayList<Player> players = new ArrayList<>(Bukkit.getOnlinePlayers());
+        for (Player player : players) {
+            player_setting.put(player, m_config.getEnable());
+        }
+    }
+
+    public void resetPending() {
+        if (!isReseting) {
+            return ;
+        }
+        if (m_plugin.getServer().getWorld("world") == null || m_plugin.getServer().getWorld("world_nether") == null) {
+            return ;
+        }
+        isReseting = false;
+        m_bind_chunks.clear();
+        teleport_cache.clear();
+        int count;
+        Cache cache = m_plugin.getCache();
+        cache.reload();
+        for (count = 0; count < cache.getCacheSize(); count++) {
+            Chunk world_chunk =  cache.getWorldChunk(count);
+            Chunk nether_chunk = cache.getNetherChunk(count);
+            BindChunk bind_chunk = new BindChunk(world_chunk, nether_chunk);
+            bind_chunk.unload();
+            cache.removeBindChunk(count);
+        }
+        m_logger.info("初始化清理了意外退出的未卸载强加载区块" + count + "个。");
     }
 
     LoadAnother m_plugin;
@@ -266,5 +309,7 @@ public class WorkManager {
 
     // 保存玩家设置
     Map<Player, Boolean> player_setting = new HashMap<>();
+
+    private boolean isReseting = false;
 
 }

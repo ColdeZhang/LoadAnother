@@ -8,12 +8,11 @@ import java.util.logging.Logger;
 public class MyLogger {
 
     public MyLogger(LoadAnother plugin) {
-        this.m_plugin = plugin;
-        m_logger = m_plugin.getLogger();
+        m_logger = plugin.getLogger();
     }
 
     public void info(Player player, String msg) {
-        m_logger.info(ChatColor.GREEN + msg);
+        m_logger.info(ChatColor.GREEN + "[ 来自玩家：" + player.getName() + " ]" +msg);
         player.sendMessage(ChatColor.GREEN + msg);
     }
     public void info(String msg) {
@@ -21,7 +20,7 @@ public class MyLogger {
     }
 
     public void warn(Player player, String msg) {
-        m_logger.warning(ChatColor.YELLOW + msg);
+        m_logger.warning(ChatColor.YELLOW + "[ 来自玩家：" + player.getName() + " ]" + msg);
         player.sendMessage(ChatColor.YELLOW + msg);
     }
     public void warn(String msg) {
@@ -29,14 +28,13 @@ public class MyLogger {
     }
 
     public void error(Player player, String msg) {
-        m_logger.severe(ChatColor.RED + msg);
+        m_logger.severe(ChatColor.RED + "[ 来自玩家：" + player.getName() + " ]" + msg);
         player.sendMessage(ChatColor.RED + msg);
     }
     public void error(String msg) {
         m_logger.severe(ChatColor.RED + msg);
     }
 
-    private LoadAnother m_plugin = null;
-    private Logger m_logger = null;
+    private final Logger m_logger;
 
 }

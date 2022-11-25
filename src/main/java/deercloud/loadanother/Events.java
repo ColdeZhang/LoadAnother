@@ -10,6 +10,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
+import org.bukkit.event.world.WorldLoadEvent;
 
 public class Events implements Listener {
 
@@ -31,6 +32,11 @@ public class Events implements Listener {
     @EventHandler
     public void onPlayerJoinEvent(PlayerJoinEvent event) {
         m_work.playerJoinController(event.getPlayer());
+    }
+
+    @EventHandler
+    public void onWorldLoaded(WorldLoadEvent event) {
+        m_work.resetPending();
     }
 
     WorkManager m_work = LoadAnother.getInstance().getWorkManager();
