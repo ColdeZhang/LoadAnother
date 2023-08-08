@@ -1,12 +1,11 @@
 package deercloud.loadanother;
 
+import net.kyori.adventure.text.Component;
 import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
-
-import java.util.Objects;
 
 public class BindChunk {
 
@@ -27,7 +26,7 @@ public class BindChunk {
         hash = String.valueOf(m_world_chunk.getX()) + m_world_chunk.getZ() + m_nether_chunk.getX() + m_nether_chunk.getZ();
     }
 
-    public boolean setDestination(Player player,Chunk to) {
+    public boolean setDestination(Player player, Chunk to) {
         if (player != creator) {
             return false;
         }
@@ -47,18 +46,14 @@ public class BindChunk {
     }
 
     public boolean isCreatorExist() {
-        Entity[] entities_world = m_world_chunk.getEntities();
-        Entity[] entities_nether = m_nether_chunk.getEntities();
-        Entity[] entities = new Entity[entities_world.length + entities_nether.length];
-        System.arraycopy(entities_world, 0, entities, 0, entities_world.length);
-        System.arraycopy(entities_nether, 0, entities, entities_world.length, entities_nether.length);
-        for (Entity entity : entities) {
-            if (entity instanceof Player) {
-                Player player = (Player) entity;
-                if (player == creator) {
-                    return true;
-                }
-            }
+        int R = LoadAnother.instance.config.getRadius() - 1;
+        World player_world = creator.getWorld();
+        int player_x = creator.getLocation().getBlockX();
+        int player_z = creator.getLocation().getBlockZ();
+        if (player_world.getEnvironment() == World.Environment.NORMAL) {
+            return player_x >= m_world_chunk.getX() * 16 - R && player_x <= m_world_chunk.getX() * 16 + R && player_z >= m_world_chunk.getZ() * 16 - R && player_z <= m_world_chunk.getZ() * 16 + R;
+        } else if (player_world.getEnvironment() == World.Environment.NETHER) {
+            return player_x >= m_nether_chunk.getX() * 16 - R && player_x <= m_nether_chunk.getX() * 16 + R && player_z >= m_nether_chunk.getZ() * 16 - R && player_z <= m_nether_chunk.getZ() * 16 + R;
         }
         return false;
     }
@@ -66,11 +61,8 @@ public class BindChunk {
     public void unload() {
         m_world_chunk.load();
         m_nether_chunk.load();
-        if (creator == null) {
-            m_logger.warn("| 总共清理了" + (clearChunkEntities(m_world_chunk) + clearChunkEntities(m_nether_chunk)) + "个实体");
-        }else{
-            m_logger.warn(creator, "| 总共清理了" + (clearChunkEntities(m_world_chunk) + clearChunkEntities(m_nether_chunk)) + "个实体");
-        }
+        XLogger.debug("| 总共清理了" + (clearChunkEntities(m_world_chunk) + clearChunkEntities(m_nether_chunk)) + "个实体");
+
         setForceLoaded(false);
         m_cache.removeBindChunk(this);
     }
@@ -85,34 +77,16 @@ public class BindChunk {
     }
 
     // 清空一个区块中的敌对生物实体
-    public int clearChunkEntitiesByName(Chunk chunk, String with_name) {
-        int number = 0;
-        for (Entity entity : chunk.getEntities()) {
-            if (entity instanceof Monster) {
-                String name_custom = entity.getCustomName();
-                if (Objects.equals(name_custom, with_name)) {
-                    ((Monster) entity).setRemoveWhenFarAway(true);
-                    entity.remove();
-                    ((Monster) entity).setHealth(0);
-                    number++;
-                }
-            }
-        }
-        return number;
-    }
-
-    // 清空一个区块中的敌对生物实体
     public int clearChunkEntities(Chunk chunk) {
         int number = 0;
         for (Entity entity : chunk.getEntities()) {
             if (entity instanceof Monster) {
-                String name_custom = entity.getCustomName();
-                if (!((Monster) entity).getRemoveWhenFarAway() && name_custom == null) {
-                    ((Monster) entity).setRemoveWhenFarAway(true);
-                    entity.remove();
-                    ((Monster) entity).setHealth(0);
-                    number++;
+                Monster monster = (Monster) entity;
+                Component name = monster.customName();
+                if (name != null) {
+                    continue;
                 }
+                monster.setRemoveWhenFarAway(true);
             }
         }
         return number;
@@ -140,7 +114,7 @@ public class BindChunk {
     }
 
     private void setForceLoaded(boolean forceLoaded) {
-        int R = LoadAnother.getInstance().getConfigManager().getRadius() - 1;
+        int R = LoadAnother.instance.config.getRadius() - 1;
         for (int x = -R; x <= R; x++) {
             for (int z = -R; z <= R; z++) {
                 m_world_chunk.getWorld().getChunkAt(m_world_chunk.getX() + x, m_world_chunk.getZ() + z).setForceLoaded(forceLoaded);
@@ -154,13 +128,13 @@ public class BindChunk {
     private Chunk m_nether_chunk = null;
     private State m_state;
     String hash = null;
+
     enum State {
         FORCE,  // 一般强加载
         DELAY,  // 延迟强加载
         UNLOAD  // 可被卸载
     }
 
-    MyLogger m_logger = LoadAnother.getInstance().getMyLogger();
-    Cache m_cache = LoadAnother.getInstance().getCache();
+    Cache m_cache = LoadAnother.instance.getCache();
 
 }

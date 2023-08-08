@@ -10,6 +10,8 @@ delay: 20
 # 强加载半径
 radius: 1
 
+debug: false
+
 # 例如
 # 1 :    +
 

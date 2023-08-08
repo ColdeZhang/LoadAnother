@@ -3,13 +3,9 @@ package deercloud.loadanother;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityPortalEnterEvent;
-import org.bukkit.event.entity.EntityPortalEvent;
-import org.bukkit.event.entity.EntityPortalExitEvent;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.event.world.WorldLoadEvent;
 
 public class Events implements Listener {
@@ -39,6 +35,6 @@ public class Events implements Listener {
         m_work.resetPending();
     }
 
-    WorkManager m_work = LoadAnother.getInstance().getWorkManager();
+    WorkManager m_work = LoadAnother.instance.getWorkManager();
 
 }

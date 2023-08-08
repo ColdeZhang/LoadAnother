@@ -7,6 +7,7 @@ load: STARTUP
 authors: [ Luming ]
 description: 帮助玩家强加载另一个世界的对应区块。
 website: https://blog.deercloud.site
+folia-supported: true
 commands:
     loadanother:
         description: 帮助玩家强加载另一个世界的对应区块。
