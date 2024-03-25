@@ -6,7 +6,7 @@
 
     <groupId>deercloud</groupId>
     <artifactId>LoadAnother</artifactId>
-    <version>3.1.1-Folia-1.20.1</version>
+    <version>4.0.0</version>
     <packaging>jar</packaging>
 
     <name>LoadAnother</name>

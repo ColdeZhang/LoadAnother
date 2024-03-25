@@ -59,12 +59,14 @@ public class BindChunk {
     }
 
     public void unload() {
-        m_world_chunk.load();
-        m_nether_chunk.load();
-        XLogger.debug("| 总共清理了" + (clearChunkEntities(m_world_chunk) + clearChunkEntities(m_nether_chunk)) + "个实体");
+        LoadAnother.globalScheduler.run(LoadAnother.instance, (instance) -> {
+            m_world_chunk.load();
+            m_nether_chunk.load();
+            XLogger.debug("| 总共清理了" + (clearChunkEntities(m_world_chunk) + clearChunkEntities(m_nether_chunk)) + "个实体");
 
-        setForceLoaded(false);
-        m_cache.removeBindChunk(this);
+            setForceLoaded(false);
+            m_cache.removeBindChunk(this);
+        });
     }
 
     public boolean isContain(Chunk chunk) {
@@ -87,6 +89,8 @@ public class BindChunk {
                     continue;
                 }
                 monster.setRemoveWhenFarAway(true);
+                monster.remove();
+                number++;
             }
         }
         return number;
@@ -114,13 +118,15 @@ public class BindChunk {
     }
 
     private void setForceLoaded(boolean forceLoaded) {
-        int R = LoadAnother.instance.config.getRadius() - 1;
-        for (int x = -R; x <= R; x++) {
-            for (int z = -R; z <= R; z++) {
-                m_world_chunk.getWorld().getChunkAt(m_world_chunk.getX() + x, m_world_chunk.getZ() + z).setForceLoaded(forceLoaded);
-                m_nether_chunk.getWorld().getChunkAt(m_nether_chunk.getX() + x, m_nether_chunk.getZ() + z).setForceLoaded(forceLoaded);
+        LoadAnother.globalScheduler.run(LoadAnother.instance, (instance) -> {
+            int R = LoadAnother.instance.config.getRadius() - 1;
+            for (int x = -R; x <= R; x++) {
+                for (int z = -R; z <= R; z++) {
+                    m_world_chunk.getWorld().getChunkAt(m_world_chunk.getX() + x, m_world_chunk.getZ() + z).setForceLoaded(forceLoaded);
+                    m_nether_chunk.getWorld().getChunkAt(m_nether_chunk.getX() + x, m_nether_chunk.getZ() + z).setForceLoaded(forceLoaded);
+                }
             }
-        }
+        });
     }
 
     private final Player creator;

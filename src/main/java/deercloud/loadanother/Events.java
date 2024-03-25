@@ -1,5 +1,6 @@
 package deercloud.loadanother;
 
+import com.destroystokyo.paper.event.player.PlayerPostRespawnEvent;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityPortalEnterEvent;
@@ -12,6 +13,7 @@ public class Events implements Listener {
 
     @EventHandler
     public void onPlayerPortalEvent(PlayerPortalEvent event) {
+        XLogger.debug("onPlayerPortalEvent");
         m_work.playerPortalController(event);
     }
 
@@ -22,6 +24,7 @@ public class Events implements Listener {
 
     @EventHandler
     public void onPlayerChangeWorldEvent(PlayerChangedWorldEvent event) {
+        XLogger.debug("onPlayerChangeWorldEvent");
         m_work.playerChangeWorldController(event);
     }
 

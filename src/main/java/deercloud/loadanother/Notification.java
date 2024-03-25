@@ -11,14 +11,14 @@ public class Notification {
     private static final Style e_style = Style.style(TextColor.color(255, 96, 72));
 
     public static void info(Player player, String msg) {
-        player.sendMessage(Component.text("[BoundaryMarker] " + msg, i_style));
+        player.sendMessage(Component.text("[LA] " + msg, i_style));
     }
 
     public static void warn(Player player, String msg) {
-        player.sendMessage(Component.text("[BoundaryMarker] " + msg, w_style));
+        player.sendMessage(Component.text("[LA] " + msg, w_style));
     }
 
     public static void error(Player player, String msg) {
-        player.sendMessage(Component.text("[BoundaryMarker] " + msg, e_style));
+        player.sendMessage(Component.text("[LA] " + msg, e_style));
     }
 }

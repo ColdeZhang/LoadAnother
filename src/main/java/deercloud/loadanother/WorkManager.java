@@ -42,6 +42,7 @@ public class WorkManager {
                 break;
             }
         }
+        XLogger.debug("玩家 " + player.getName() + " 完成了世界跳转");
         // 如果不能成功创建 或者 玩家仍然在缓存中 则清空这条
         if (bind_chunk == null || teleport_cache.containsKey(player)) {
             teleport_cache.remove(player);
@@ -49,10 +50,12 @@ public class WorkManager {
         }
         // 如果成功创建了强加载区块 则启动生命周期
         BindChunkLifeCycle life_cycle = new BindChunkLifeCycle(this, bind_chunk);
-        life_cycle.runTaskTimer(m_plugin, 0L, 200L);
+        LoadAnother.globalScheduler.runAtFixedRate(LoadAnother.instance, (instance) -> life_cycle.run(), 0, 200L);
+        // life_cycle.runTaskTimer(m_plugin, 0L, 200L);
         if (m_plugin.config.getLoadTime() > 0) {
             loadTimeTask task = new loadTimeTask(bind_chunk);
-            SchedulerUtil.runAtFixedRateEntity(bind_chunk.getCreator(), LoadAnother.instance, task, m_plugin.config.getLoadTime() * 20);
+            //  SchedulerUtil.runAtFixedRateEntity(bind_chunk.getCreator(), LoadAnother.instance, task, m_plugin.config.getLoadTime() * 20);
+            LoadAnother.globalScheduler.runAtFixedRate(LoadAnother.instance, (instance) -> task.run(), 0, m_plugin.config.getLoadTime() * 20);
         }
         m_bind_chunks.put(bind_chunk.getHash(), bind_chunk);
         Notification.info(player, "| =======强加载启动=======");
@@ -73,6 +76,7 @@ public class WorkManager {
         // 玩家如果进入了下届传送门则创建一个强加载区块 但是放在缓存中
         BindChunk bindChunk = new BindChunk(player, player.getLocation().getChunk());
         teleport_cache.put(player, bindChunk);
+        XLogger.debug("玩家 " + player.getName() + " 进入了下届传送门");
     }
 
     // 卸载强加载区块并且从列表中移除
@@ -203,7 +207,8 @@ public class WorkManager {
                 }
                 m_bind_chunk.setState(BindChunk.State.DELAY);
                 WorkManager.delayTask task = new WorkManager.delayTask(m_bind_chunk);
-                SchedulerUtil.runLaterAsync(LoadAnother.instance, task, m_work_manger.m_plugin.config.getDelay() * 20);
+                // SchedulerUtil.runLaterAsync(LoadAnother.instance, task, m_work_manger.m_plugin.config.getDelay() * 20);
+                LoadAnother.globalScheduler.runDelayed(LoadAnother.instance, (instance) -> task.run(), m_work_manger.m_plugin.config.getDelay() * 20);
             } else if (m_bind_chunk.getState() == BindChunk.State.UNLOAD) {
                 Notification.warn(m_bind_chunk.getCreator(), "| 强加载区块，" + m_bind_chunk.getHash() + "已经被卸载");
                 m_work_manger.unloadBindChunk(m_bind_chunk);
@@ -265,8 +270,8 @@ public class WorkManager {
                 XLogger.info("|  | World : " + bind_chunk.getWorldChunk().getX() + ", " + bind_chunk.getWorldChunk().getZ());
                 XLogger.info("|  | Nether: " + bind_chunk.getNetherChunk().getX() + ", " + bind_chunk.getNetherChunk().getZ());
             }
+            XLogger.info("| ===================");
         }
-        XLogger.info("| ===================");
     }
 
     public void reset() {
